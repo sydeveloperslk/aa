@@ -36,8 +36,9 @@
 //         console.log("I have lost a client");
 //     });
 // });
-var http = require('http');
 
+var http = require('http');
+ 
 //create a server object:
 http.createServer(function (req, res) {
   res.write('A Monk in Cloud'); //write a response to the client
