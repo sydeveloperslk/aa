@@ -4,11 +4,13 @@
   "description": "no dec",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
   },
   "author": "ima",
   "license": "ISC",
   "dependencies": {
     "ws": "^8.16.0"
   }
+
 }
