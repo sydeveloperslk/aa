@@ -11,8 +11,8 @@ const server = https.createServer({
 // Create a WebSocket server on top of the HTTPS server
 const wss = new WebSocket.Server({ server });
 
-const PING_INTERVAL = 3000; // 30 seconds
-const PONG_TIMEOUT = 1000; // 10 seconds
+const PING_INTERVAL = 6000; // 30 seconds
+const PONG_TIMEOUT = 3000; // 10 seconds
 
 function setupHeartbeat(ws) {
     let timeout;
@@ -22,7 +22,7 @@ function setupHeartbeat(ws) {
             ws.ping();
             timeout = setTimeout(() => {
                 if (ws.readyState === WebSocket.OPEN) {
-                    // ws.terminate(); // Force close the connection if pong is not received in time
+                    ws.terminate(); // Force close the connection if pong is not received in time
                 }
             }, PONG_TIMEOUT);
         }
