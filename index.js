@@ -6,12 +6,10 @@ const WebSocket = require('ws');
 const server = https.createServer({
     key: fs.readFileSync('private_key.pem'),
     cert: fs.readFileSync('certificate.pem'),
-    // ca: fs.readFileSync('path_to_your_ca_bundle.pem') // Optional: Include this if you have a CA bundle
 });
 
 // Create a WebSocket server on top of the HTTPS server
 const wss = new WebSocket.Server({ server });
-
 wss.on('connection', function (ws) {
     ws.on('message', function (event) {
         var json = JSON.parse(event);
@@ -26,7 +24,7 @@ wss.on('connection', function (ws) {
                         }));
                     }
                 });
-                break;
+                break; 
             case 'message':
                 wss.clients.forEach(function (client) {
                     if (client !== ws && client.readyState === WebSocket.OPEN) {
@@ -44,15 +42,21 @@ wss.on('connection', function (ws) {
     console.log('A new client connected');
     
     ws.on('close', function () {
+            ws.personName = json.data;
+            wss.clients.forEach(function (client) {
+                if (client !== ws && client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify({
+                        type: "offline",
+                        data: ws.personName,
+                    }));
+                }
+            });
         console.log("A client disconnected");
     });
 });
-
-// Start the HTTPS server, listening on port 5001
-// server.listen(5001, function () {
-//     console.log('Server is listening on port 5001');
-// });
+ 
 server.listen(443, function () {
+
     console.log('HTTPS Server is listening on port 443');
 });
 
