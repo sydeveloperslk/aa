@@ -1,14 +1,25 @@
-var server = require("ws").Server;
-var s = new server({ port: 5001 });
+const fs = require('fs');
+const https = require('https');
+const WebSocket = require('ws');
 
-s.on('connection', function (ws) {
+// Load SSL/TLS certificate and key
+const server = https.createServer({
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem'),
+    // ca: fs.readFileSync('path_to_your_ca_bundle.pem') // Optional: Include this if you have a CA bundle
+});
+
+// Create a WebSocket server on top of the HTTPS server
+const wss = new WebSocket.Server({ server });
+
+wss.on('connection', function (ws) {
     ws.on('message', function (event) {
         var json = JSON.parse(event);
         switch (json.type) {
             case 'name':
                 ws.personName = json.data;
-                s.clients.forEach(function (client) {
-                    if (client != ws) {
+                wss.clients.forEach(function (client) {
+                    if (client !== ws && client.readyState === WebSocket.OPEN) {
                         client.send(JSON.stringify({
                             type: "name",
                             data: ws.personName,
@@ -17,8 +28,8 @@ s.on('connection', function (ws) {
                 });
                 break;
             case 'message':
-                s.clients.forEach(function (client) {
-                    if (client != ws) {
+                wss.clients.forEach(function (client) {
+                    if (client !== ws && client.readyState === WebSocket.OPEN) {
                         client.send(JSON.stringify({
                             type: "message",
                             name: ws.personName,
@@ -30,17 +41,20 @@ s.on('connection', function (ws) {
         }
     });
 
-    console.log('Once more client connection');
+    console.log('A new client connected');
     
     ws.on('close', function () {
-        console.log("I have lost a client");
+        console.log("A client disconnected");
     });
 });
 
-var http = require('http');
- 
-//create a server object:
+// Start the HTTPS server, listening on port 5001
+server.listen(5001, function () {
+    console.log('Server is listening on port 5001');
+});
+
+// Optionally, serve HTTP on port 80 for basic HTTP requests
 http.createServer(function (req, res) {
-  res.write('A Monk2we in Cloud'); //write a response to the client
-  res.end(); //end the response
+    res.write('A Monkw444 in Cloud'); //write a response to the client
+    res.end(); //end the response
 }).listen(80); //the server object listens on port 80
