@@ -3,7 +3,7 @@ const https = require('https');
 const WebSocket = require('ws');
 
 const server = https.createServer({
-    key: fs.readFileSync('private_key.pem'),  
+    key: fs.readFileSync('first_project_aws_key.pem'),  
     cert: fs.readFileSync('certificate.pem'),         // Your private key file
 });
 
@@ -32,6 +32,6 @@ var http = require('http');
 
 //create a server object:
 http.createServer(function (req, res) {
-  res.write('A Cloud'); //write a response to the client
+  res.write('A Cloud ee'); //write a response to the client
   res.end(); //end the response
 }).listen(80); //the server object listens on port 80
