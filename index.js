@@ -10,7 +10,43 @@ const server = https.createServer({
 
 // Create a WebSocket server on top of the HTTPS server
 const wss = new WebSocket.Server({ server });
+
+const PING_INTERVAL = 30000; // 30 seconds
+const PONG_TIMEOUT = 10000; // 10 seconds
+
+function setupHeartbeat(ws) {
+    let timeout;
+
+    function ping() {
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.ping();
+            timeout = setTimeout(() => {
+                if (ws.readyState === WebSocket.OPEN) {
+                    ws.terminate(); // Force close the connection if pong is not received in time
+                }
+            }, PONG_TIMEOUT);
+        }
+    }
+
+    ws.on('pong', () => {
+        clearTimeout(timeout);
+    });
+
+    ws.on('close', () => {
+        clearTimeout(timeout);
+    });
+
+    ping();
+    const intervalId = setInterval(ping, PING_INTERVAL);
+
+    ws.on('close', () => {
+        clearInterval(intervalId);
+    });
+}
+
 wss.on('connection', function (ws) {
+    setupHeartbeat(ws);
+
     ws.on('message', function (event) {
         var json = JSON.parse(event);
         switch (json.type) {
@@ -24,7 +60,7 @@ wss.on('connection', function (ws) {
                         }));
                     }
                 });
-                break; 
+                break;
             case 'message':
                 wss.clients.forEach(function (client) {
                     if (client !== ws && client.readyState === WebSocket.OPEN) {
@@ -42,26 +78,24 @@ wss.on('connection', function (ws) {
     console.log('A new client connected');
     
     ws.on('close', function () {
-            // ws.personName = json.data;
-            wss.clients.forEach(function (client) {
-                if (client !== ws && client.readyState === WebSocket.OPEN) {
-                    client.send(JSON.stringify({
-                        type: "offline",
-                        data: ws.personName,
-                    }));
-                }
-            });
+        wss.clients.forEach(function (client) {
+            if (client !== ws && client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({
+                    type: "offline",
+                    data: ws.personName,
+                }));
+            }
+        });
         console.log("A client disconnected");
     });
 });
  
 server.listen(443, function () {
-
     console.log('HTTPS Server is listening on port 443');
 });
 
 // Optionally, serve HTTP on port 80 for basic HTTP requests
 https.createServer(function (req, res) {
-    res.write('A 3434 in Cloud'); //write a response to the client
-    res.end(); //end the response
-}).listen(80); //the server object listens on port 80
+    res.write('A 3434 in Cloud'); // Write a response to the client
+    res.end(); // End the response
+}).listen(80); // The server object listens on port 80
