@@ -1,5 +1,5 @@
 const fs = require('fs');
-const https = require('https');
+const https = require('http');
 const WebSocket = require('ws');
 
 // Load SSL/TLS certificate and key
