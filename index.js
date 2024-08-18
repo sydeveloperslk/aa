@@ -1,5 +1,5 @@
 const fs = require('fs');
-const https = require('http');
+const https = require('https');
 const WebSocket = require('ws');
 
 // Load SSL/TLS certificate and key
@@ -55,6 +55,6 @@ server.listen(5001, function () {
 
 // Optionally, serve HTTP on port 80 for basic HTTP requests
 https.createServer(function (req, res) {
-    res.write('A Monkw444 in Cloud'); //write a response to the client
+    res.write('A 3434 in Cloud'); //write a response to the client
     res.end(); //end the response
 }).listen(80); //the server object listens on port 80
