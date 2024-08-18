@@ -20,7 +20,7 @@ wss.on('connection', function (ws) {
                     if (client !== ws && client.readyState === WebSocket.OPEN) {
                         client.send(JSON.stringify({
                             type: "name",
-                            data: ws.personName,
+                            data: json.data,
                         }));
                     }
                 });
@@ -42,7 +42,7 @@ wss.on('connection', function (ws) {
     console.log('A new client connected');
     
     ws.on('close', function () {
-            ws.personName = json.data;
+            // ws.personName = json.data;
             wss.clients.forEach(function (client) {
                 if (client !== ws && client.readyState === WebSocket.OPEN) {
                     client.send(JSON.stringify({
