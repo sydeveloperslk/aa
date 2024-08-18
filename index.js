@@ -4,7 +4,7 @@ const WebSocket = require('ws');
 
 const server = https.createServer({
     key: fs.readFileSync('first_project_aws_key.pem'),  
-    cert: fs.readFileSync('certificate.pem'),         // Your private key file
+    cert: fs.readFileSync('first_project_aws_key.pem'),         // Your private key file
 });
 
 const wss = new WebSocket.Server({ server });
