@@ -22,7 +22,7 @@ function setupHeartbeat(ws) {
             ws.ping();
             timeout = setTimeout(() => {
                 if (ws.readyState === WebSocket.OPEN) {
-                    ws.terminate(); // Force close the connection if pong is not received in time
+                    // ws.terminate(); // Force close the connection if pong is not received in time
                 }
             }, PONG_TIMEOUT);
         }
@@ -91,8 +91,8 @@ server.listen(443, function () {
     console.log('HTTPS Server is listening on port 443');
 });
 
-// Optionally, serve HTTP on port 80 for basic HTTP requests
-https.createServer(function (req, res) {
-    res.write('A 3434 in Cloud'); // Write a response to the client
-    res.end(); // End the response
-}).listen(80); // The server object listens on port 80
+// // Optionally, serve HTTP on port 80 for basic HTTP requests
+// https.createServer(function (req, res) {
+//     res.write('A 3434 in Cloud'); // Write a response to the client
+//     res.end(); // End the response
+// }).listen(80); // The server object listens on port 80
