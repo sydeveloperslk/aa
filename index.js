@@ -11,8 +11,8 @@ const server = https.createServer({
 // Create a WebSocket server on top of the HTTPS server
 const wss = new WebSocket.Server({ server });
 
-const PING_INTERVAL = 30000; // 30 seconds
-const PONG_TIMEOUT = 10000; // 10 seconds
+const PING_INTERVAL = 3000; // 30 seconds
+const PONG_TIMEOUT = 1000; // 10 seconds
 
 function setupHeartbeat(ws) {
     let timeout;
@@ -34,13 +34,22 @@ function setupHeartbeat(ws) {
 
     ws.on('close', () => {
         clearTimeout(timeout);
+        clearInterval(intervalId); // Clear interval when connection closes
+        notifyClientsOffline(ws.personName);
     });
 
-    ping();
-    const intervalId = setInterval(ping, PING_INTERVAL);
+    ping(); // Initial ping
+    const intervalId = setInterval(ping, PING_INTERVAL); // Regular pings
+}
 
-    ws.on('close', () => {
-        clearInterval(intervalId);
+function notifyClientsOffline(personName) {
+    wss.clients.forEach((client) => {
+        if (client.readyState === WebSocket.OPEN) {
+            client.send(JSON.stringify({
+                type: "offline",
+                data: personName,
+            }));
+        }
     });
 }
 
@@ -76,20 +85,8 @@ wss.on('connection', function (ws) {
     });
 
     console.log('A new client connected');
-    
-    ws.on('close', function () {
-        wss.clients.forEach(function (client) {
-            if (client !== ws && client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify({
-                    type: "offline",
-                    data: ws.personName,
-                }));
-            }
-        });
-        console.log("A client disconnected");
-    });
 });
- 
+
 server.listen(443, function () {
     console.log('HTTPS Server is listening on port 443');
 });
