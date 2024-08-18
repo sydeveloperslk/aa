@@ -49,9 +49,9 @@ wss.on('connection', function (ws) {
 });
 
 // Start the HTTPS server, listening on port 5001
-server.listen(5001, function () {
-    console.log('Server is listening on port 5001');
-});
+// server.listen(5001, function () {
+//     console.log('Server is listening on port 5001');
+// });
 server.listen(443, function () {
     console.log('HTTPS Server is listening on port 443');
 });
