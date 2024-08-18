@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "run": "node index.js",
+    "run9":"nohup node your_script.js &"
   },
   "author": "ima",
   "license": "ISC",
