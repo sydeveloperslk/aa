@@ -4,8 +4,8 @@ const WebSocket = require('ws');
 
 // Load SSL/TLS certificate and key
 const server = https.createServer({
-    key: fs.readFileSync('first_project_aws_key.pem'),
-    cert: fs.readFileSync('cert.pem'),
+    key: fs.readFileSync('private_key.pem'),
+    cert: fs.readFileSync('certificate.pem'),
     // ca: fs.readFileSync('path_to_your_ca_bundle.pem') // Optional: Include this if you have a CA bundle
 });
 
