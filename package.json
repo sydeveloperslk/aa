@@ -1,20 +1,16 @@
 {
-  "name": "node-hello",
+  "name": "imaths",
   "version": "1.0.0",
-  "description": "",
+  "description": "no dec",
   "main": "index.js",
   "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/johnpapa/node-hello.git"
-  },
-  "keywords": [],
-  "author": "",
+  "author": "ima",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/johnpapa/node-hello/issues"
-  },
-  "homepage": "https://github.com/johnpapa/node-hello#readme"
+  "dependencies": {
+    "ws": "^8.16.0"
+  }
+
 }
