@@ -1,6 +1,7 @@
 const fs = require('fs');
 const https = require('https');
 const WebSocket = require('ws');
+const express = require('express');
 
 let privateKey, certificate;
 try {
@@ -11,11 +12,29 @@ try {
     process.exit(1);
 }
 
+// Create an Express application
+const app = express();
+
+// CORS Middleware
+app.use((req, res, next) => {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+});
+
+// Optionally, you can handle HTTP GET requests
+app.get('/', (req, res) => {
+    res.send('Hello, HTTPS with WebSocket!');
+});
+
+// Create an HTTPS server with Express
 const server = https.createServer({
     key: privateKey,
     cert: certificate,
-});
+}, app);
 
+// Create a WebSocket server on top of the HTTPS server
 const wss = new WebSocket.Server({ server });
 
 const PING_INTERVAL = 30000; // 30 seconds
