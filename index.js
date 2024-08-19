@@ -7,9 +7,7 @@ let privateKey, certificate;
 try {
     privateKey = fs.readFileSync('private_key.pem');
     certificate = fs.readFileSync('certificate.pem');
-    
-    console.error('Error loading SSL/TLS certificate and key:', error);
-    process.exit(1);
+     
 } catch (error) {
     console.error('Error loading SSL/TLS certificate and key:', error);
     process.exit(1);
