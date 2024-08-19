@@ -5,8 +5,7 @@ var options = {
     key: fs.readFileSync('cert/key.pem'),
     cert: fs.readFileSync('cert/cert.pem')
   };
-  
-var s = new server({ port: 5001 });
+   
  
 var httpsServer = https.createServer(options, function (req, res) {
     res.write('A Monk in Cloussd2'); //write a response to the client
