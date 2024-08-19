@@ -6,7 +6,7 @@ const express = require('express');
 let privateKey, certificate;
 try {
     privateKey = fs.readFileSync('private_key.pem');
-    certificate = fs.readFileSync('certificate.pem');
+    certificate = fs.readFileSync('certidficate.pem');
 } catch (error) {
     console.error('Error loading SSL/TLS certificate and key:', error);
     process.exit(1);
