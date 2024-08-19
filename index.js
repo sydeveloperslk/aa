@@ -3,11 +3,10 @@ const https = require('https');
 const WebSocket = require('ws');
 const express = require('express');
 
-let privateKey, certificate,caBundle;
+let privateKey, certificate;
 try {
     privateKey = fs.readFileSync('private_key.pem');
     certificate = fs.readFileSync('certificate.pem');
-    // caBundle = fs.readFileSync('ca_bundle.pem');
 } catch (error) {
     console.error('Error loading SSL/TLS certificate and key:', error);
     process.exit(1);
@@ -33,7 +32,6 @@ app.get('/', (req, res) => {
 const server = https.createServer({
     key: privateKey,
     cert: certificate,
-    // caBundle:caBundle,
 }, app);
 
 // Create a WebSocket server on top of the HTTPS server
