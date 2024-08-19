@@ -69,7 +69,7 @@ function setupHeartbeat(ws) {
 }
 
 function notifyClientsOffline(personName) {
-    console.log(personName);
+    console.log('Client offline:', personName);
     wss.clients.forEach((client) => {
         if (client.readyState === WebSocket.OPEN) {
             client.send(JSON.stringify({
