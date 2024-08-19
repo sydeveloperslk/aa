@@ -2,17 +2,24 @@ const fs = require('fs');
 const https = require('https');
 const WebSocket = require('ws');
 
-// Load SSL/TLS certificate and key
+let privateKey, certificate;
+try {
+    privateKey = fs.readFileSync('private_key.pem');
+    certificate = fs.readFileSync('certificate.pem');
+} catch (error) {
+    console.error('Error loading SSL/TLS certificate and key:', error);
+    process.exit(1);
+}
+
 const server = https.createServer({
-    key: fs.readFileSync('private_key.pem'),
-    cert: fs.readFileSync('certificate.pem'),
+    key: privateKey,
+    cert: certificate,
 });
 
-// Create a WebSocket server on top of the HTTPS server
 const wss = new WebSocket.Server({ server });
 
-const PING_INTERVAL = 6000; // 30 seconds
-const PONG_TIMEOUT = 3000; // 10 seconds
+const PING_INTERVAL = 30000; // 30 seconds
+const PONG_TIMEOUT = 10000; // 10 seconds
 
 function setupHeartbeat(ws) {
     let timeout;
@@ -22,7 +29,7 @@ function setupHeartbeat(ws) {
             ws.ping();
             timeout = setTimeout(() => {
                 if (ws.readyState === WebSocket.OPEN) {
-                    ws.terminate(); // Force close the connection if pong is not received in time
+                    ws.terminate();
                 }
             }, PONG_TIMEOUT);
         }
@@ -34,12 +41,12 @@ function setupHeartbeat(ws) {
 
     ws.on('close', () => {
         clearTimeout(timeout);
-        clearInterval(intervalId); // Clear interval when connection closes
+        clearInterval(intervalId);
         notifyClientsOffline(ws.personName);
     });
 
-    ping(); // Initial ping
-    const intervalId = setInterval(ping, PING_INTERVAL); // Regular pings
+    ping();
+    const intervalId = setInterval(ping, PING_INTERVAL);
 }
 
 function notifyClientsOffline(personName) {
@@ -58,42 +65,59 @@ wss.on('connection', function (ws) {
     setupHeartbeat(ws);
 
     ws.on('message', function (event) {
-        var json = JSON.parse(event);
-        switch (json.type) {
-            case 'name':
-                ws.personName = json.data;
-                wss.clients.forEach(function (client) {
-                    if (client !== ws && client.readyState === WebSocket.OPEN) {
-                        client.send(JSON.stringify({
-                            type: "name",
-                            data: json.data,
-                        }));
-                    }
-                });
-                break;
-            case 'message':
-                wss.clients.forEach(function (client) {
-                    if (client !== ws && client.readyState === WebSocket.OPEN) {
-                        client.send(JSON.stringify({
-                            type: "message",
-                            name: ws.personName,
-                            data: json.data
-                        }));
-                    }
-                });
-                break;
+        try {
+            var json = JSON.parse(event);
+            console.log('Received message:', json);
+
+            switch (json.type) {
+                case 'name':
+                    ws.personName = json.data;
+                    wss.clients.forEach(function (client) {
+                        if (client !== ws && client.readyState === WebSocket.OPEN) {
+                            client.send(JSON.stringify({
+                                type: "name",
+                                data: json.data,
+                            }));
+                        }
+                    });
+                    break;
+                case 'message':
+                    wss.clients.forEach(function (client) {
+                        if (client !== ws && client.readyState === WebSocket.OPEN) {
+                            client.send(JSON.stringify({
+                                type: "message",
+                                name: ws.personName,
+                                data: json.data
+                            }));
+                        }
+                    });
+                    break;
+            }
+        } catch (error) {
+            console.error('Error handling message:', error);
         }
     });
 
+    ws.on('error', (error) => {
+        console.error('WebSocket connection error:', error);
+    });
+
     console.log('A new client connected');
+});
+
+wss.on('error', (error) => {
+    console.error('WebSocket server error:', error);
 });
 
 server.listen(443, function () {
     console.log('HTTPS Server is listening on port 443');
 });
 
-// // Optionally, serve HTTP on port 80 for basic HTTP requests
-// https.createServer(function (req, res) {
-//     res.write('A 3434 in Cloud'); // Write a response to the client
-//     res.end(); // End the response
-// }).listen(80); // The server object listens on port 80
+process.on('SIGTERM', () => {
+    console.log('SIGTERM signal received: closing HTTP server');
+    server.close(() => {
+        console.log('HTTP server closed');
+        wss.clients.forEach(client => client.terminate());
+        process.exit(0);
+    });
+});
